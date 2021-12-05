@@ -39,6 +39,8 @@ object Injectors {
       }
       it.set(entryPointClazz, dependencies[it.type])
     }
+
+    cleanUp()
   }
 
   private fun <T> injectByDFS(
@@ -83,5 +85,12 @@ object Injectors {
       }
       methodTree[it.key]?.addAll(safeMethods)
     }
+  }
+
+  private fun cleanUp() {
+    methodToClassMap.clear()
+    classToMethodMap.clear()
+    methodDependencies.clear()
+    methodTree.clear()
   }
 }
