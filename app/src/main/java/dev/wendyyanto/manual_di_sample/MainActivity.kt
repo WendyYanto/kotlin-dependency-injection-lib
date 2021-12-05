@@ -22,8 +22,8 @@ class MainActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
 
     Injectors.inject(
-      kClass = MainModule::class,
-      entryPointClazz = this
+      MainModule::class,
+      this
     )
 
     setContentView(R.layout.activity_main)
