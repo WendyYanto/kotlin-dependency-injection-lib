@@ -1,6 +1,5 @@
 package dev.wendyyanto.dependency_lib.di
 
-import dev.wendyyanto.dependency_lib.annotation.EntryPoint
 import dev.wendyyanto.dependency_lib.annotation.Inject
 import dev.wendyyanto.dependency_lib.annotation.Provides
 import java.lang.reflect.Method
@@ -26,20 +25,18 @@ object Injectors {
 
     generateMethodTree()
 
-    val rootMethod = kClass.java.declaredMethods.firstOrNull { method ->
-      method.isAnnotationPresent(EntryPoint::class.java)
-    }
-
-    // ToDo: to improve
-    val safeRootMethod = rootMethod ?: throw IllegalArgumentException("Should have root entry point")
-
     val moduleInstance = kClass.java.newInstance()
-    injectByDFS(safeRootMethod, moduleInstance, dependencies)
 
     // Injecting Dependencies
     entryPointClazz.javaClass.fields.filter { field ->
       field.isAnnotationPresent(Inject::class.java)
     }.forEach {
+      if (dependencies.containsKey(it.type).not()) {
+        val rootMethod = classToMethodMap[it.type]
+        val safeRootMethod =
+          rootMethod ?: throw IllegalArgumentException("Should have root entry point")
+        injectByDFS(safeRootMethod, moduleInstance, dependencies)
+      }
       it.set(entryPointClazz, dependencies[it.type])
     }
   }

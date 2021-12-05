@@ -1,6 +1,5 @@
 package dev.wendyyanto.manual_di_sample.module
 
-import dev.wendyyanto.dependency_lib.annotation.EntryPoint
 import dev.wendyyanto.dependency_lib.annotation.Provides
 import dev.wendyyanto.dependency_lib.di.InjectorModule
 import dev.wendyyanto.manual_di_sample.presenter.MainPresenter
@@ -22,7 +21,6 @@ class MainModule: InjectorModule {
   }
 
   @Provides
-  @EntryPoint
   fun provideMainPresenter(mainUtils: MainUtils, stringUtils: StringUtils): MainPresenter {
     return MainPresenterImpl(mainUtils, stringUtils)
   }
