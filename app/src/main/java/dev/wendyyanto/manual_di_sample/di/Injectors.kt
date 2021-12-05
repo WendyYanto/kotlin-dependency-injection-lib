@@ -1,6 +1,7 @@
 package dev.wendyyanto.manual_di_sample.di
 
 import android.content.Context
+import android.util.Log
 import dev.wendyyanto.manual_di_sample.annotation.EntryPoint
 import dev.wendyyanto.manual_di_sample.annotation.Inject
 import dev.wendyyanto.manual_di_sample.annotation.Provides
@@ -34,11 +35,17 @@ object Injectors {
     val moduleInstance = kClass.java.newInstance()
     injectByDFS(rootMethod, moduleInstance, dependencies)
 
+    Log.v("DEPENCIES", dependencies.toString())
+
+    Log.v("FIELD",     entryPointClazz.javaClass.fields.joinToString())
+
     // Injecting Dependencies
     entryPointClazz.javaClass.fields.filter { field ->
       field.isAnnotationPresent(Inject::class.java)
     }.forEach {
+      Log.v("HAAH", it.name)
       it.set(entryPointClazz, dependencies[it.type])
+      Log.v("WOI", "set ${it.name} with ${dependencies[it.type]}")
     }
   }
 
