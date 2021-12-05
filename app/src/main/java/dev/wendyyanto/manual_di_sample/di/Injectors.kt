@@ -14,7 +14,7 @@ object Injectors {
   private val methodDependencies: MutableMap<Method, List<Class<*>>> = mutableMapOf()
   private val methodTree: MutableMap<Method, MutableSet<Method>> = mutableMapOf()
 
-  fun <T : Any, R : Context> inject(kClass: KClass<T>, entryPointClazz: R) {
+  fun <T : InjectorModule, R : Context> inject(kClass: KClass<T>, entryPointClazz: R) {
     val dependencies: MutableMap<Class<*>, Any> = mutableMapOf()
 
     kClass.java.declaredMethods.filter { method ->
