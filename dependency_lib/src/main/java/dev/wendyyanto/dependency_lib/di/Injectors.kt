@@ -7,10 +7,18 @@ import kotlin.reflect.KClass
 
 object Injectors {
 
-  private val methodToClassMap: MutableMap<Method, Class<*>> = mutableMapOf()
-  private val classToMethodMap: MutableMap<Class<*>, Method> = mutableMapOf()
-  private val methodDependencies: MutableMap<Method, List<Class<*>>> = mutableMapOf()
-  private val methodTree: MutableMap<Method, MutableSet<Method>> = mutableMapOf()
+  private val methodToClassMap: MutableMap<Method, Class<*>> by lazy {
+    mutableMapOf()
+  }
+  private val classToMethodMap: MutableMap<Class<*>, Method> by lazy {
+    mutableMapOf()
+  }
+  private val methodDependencies: MutableMap<Method, List<Class<*>>> by lazy {
+    mutableMapOf()
+  }
+  private val methodTree: MutableMap<Method, MutableSet<Method>> by lazy {
+    mutableMapOf()
+  }
 
   fun <T : InjectorModule, R : Any> inject(kClass: KClass<T>, entryPointClazz: R) {
     val dependencies: MutableMap<Class<*>, Any> = mutableMapOf()
