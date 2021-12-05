@@ -1,5 +1,5 @@
-package dev.wendyyanto.manual_di_sample.annotation
+package dev.wendyyanto.di_lib.annotation
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION)
-annotation class Provides
+annotation class EntryPoint

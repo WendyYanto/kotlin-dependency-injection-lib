@@ -1,9 +1,9 @@
-package dev.wendyyanto.manual_di_sample.di
+package dev.wendyyanto.di_lib.di
 
 import android.content.Context
-import dev.wendyyanto.manual_di_sample.annotation.EntryPoint
-import dev.wendyyanto.manual_di_sample.annotation.Inject
-import dev.wendyyanto.manual_di_sample.annotation.Provides
+import dev.wendyyanto.di_lib.annotation.EntryPoint
+import dev.wendyyanto.di_lib.annotation.Inject
+import dev.wendyyanto.di_lib.annotation.Provides
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 

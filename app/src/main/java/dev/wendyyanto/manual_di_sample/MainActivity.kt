@@ -4,8 +4,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
-import dev.wendyyanto.manual_di_sample.annotation.Inject
-import dev.wendyyanto.manual_di_sample.di.Injectors
+import dev.wendyyanto.di_lib.annotation.Inject
+import dev.wendyyanto.di_lib.di.Injectors
 import dev.wendyyanto.manual_di_sample.module.MainModule
 import dev.wendyyanto.manual_di_sample.presenter.MainPresenter
 import dev.wendyyanto.manual_di_sample.utils.StringUtils

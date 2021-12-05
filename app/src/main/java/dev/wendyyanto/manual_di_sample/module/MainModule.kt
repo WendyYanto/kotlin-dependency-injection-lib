@@ -1,8 +1,8 @@
 package dev.wendyyanto.manual_di_sample.module
 
-import dev.wendyyanto.manual_di_sample.annotation.EntryPoint
-import dev.wendyyanto.manual_di_sample.annotation.Provides
-import dev.wendyyanto.manual_di_sample.di.InjectorModule
+import dev.wendyyanto.di_lib.annotation.EntryPoint
+import dev.wendyyanto.di_lib.annotation.Provides
+import dev.wendyyanto.di_lib.di.InjectorModule
 import dev.wendyyanto.manual_di_sample.presenter.MainPresenter
 import dev.wendyyanto.manual_di_sample.presenter.MainPresenterImpl
 import dev.wendyyanto.manual_di_sample.utils.MainUtils

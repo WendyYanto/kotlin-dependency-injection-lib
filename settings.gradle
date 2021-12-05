@@ -8,3 +8,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "manual-di-sample"
 include ':app'
+include ':di_lib'
