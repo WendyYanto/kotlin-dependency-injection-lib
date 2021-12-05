@@ -1,6 +1,6 @@
 package dev.wendyyanto.manual_di_sample.presenter
 
-import dev.wendyyanto.di_lib.annotation.Inject
+import dev.wendyyanto.dependency_lib.annotation.Inject
 import dev.wendyyanto.manual_di_sample.utils.MainUtils
 import dev.wendyyanto.manual_di_sample.utils.StringUtils
 

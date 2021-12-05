@@ -1,9 +1,8 @@
-package dev.wendyyanto.di_lib.di
+package dev.wendyyanto.dependency_lib.di
 
-import android.content.Context
-import dev.wendyyanto.di_lib.annotation.EntryPoint
-import dev.wendyyanto.di_lib.annotation.Inject
-import dev.wendyyanto.di_lib.annotation.Provides
+import dev.wendyyanto.dependency_lib.annotation.EntryPoint
+import dev.wendyyanto.dependency_lib.annotation.Inject
+import dev.wendyyanto.dependency_lib.annotation.Provides
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
@@ -14,7 +13,7 @@ object Injectors {
   private val methodDependencies: MutableMap<Method, List<Class<*>>> = mutableMapOf()
   private val methodTree: MutableMap<Method, MutableSet<Method>> = mutableMapOf()
 
-  fun <T : InjectorModule, R : Context> inject(kClass: KClass<T>, entryPointClazz: R) {
+  fun <T : InjectorModule, R : Any> inject(kClass: KClass<T>, entryPointClazz: R) {
     val dependencies: MutableMap<Class<*>, Any> = mutableMapOf()
 
     kClass.java.declaredMethods.filter { method ->
@@ -27,12 +26,15 @@ object Injectors {
 
     generateMethodTree()
 
-    val rootMethod = kClass.java.declaredMethods.first { method ->
+    val rootMethod = kClass.java.declaredMethods.firstOrNull { method ->
       method.isAnnotationPresent(EntryPoint::class.java)
     }
 
+    // ToDo: to improve
+    val safeRootMethod = rootMethod ?: throw IllegalArgumentException("Should have root entry point")
+
     val moduleInstance = kClass.java.newInstance()
-    injectByDFS(rootMethod, moduleInstance, dependencies)
+    injectByDFS(safeRootMethod, moduleInstance, dependencies)
 
     // Injecting Dependencies
     entryPointClazz.javaClass.fields.filter { field ->
