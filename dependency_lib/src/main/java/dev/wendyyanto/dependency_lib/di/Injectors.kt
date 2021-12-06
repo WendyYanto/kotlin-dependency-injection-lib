@@ -14,7 +14,7 @@ object Injectors {
   private val classToMethodMap: MutableMap<Class<*>, Method> by lazy {
     mutableMapOf()
   }
-  private val methodDependencies: MutableMap<Method, List<Class<*>>> by lazy {
+  private val classDependencies: MutableMap<Method, List<Class<*>>> by lazy {
     mutableMapOf()
   }
   private val methodTree: MutableMap<Method, MutableSet<Method>> by lazy {
@@ -35,10 +35,13 @@ object Injectors {
     }
 
     cleanUp()
+    println(appDependencies.toString())
   }
 
   fun <T : InjectorModule, R : Any> inject(kClass: KClass<T>, entryPointClass: R) {
     val dependencies: MutableMap<Class<*>, Any> = appDependencies.toMutableMap()
+
+    println(dependencies)
 
     saveMethods(kClass)
     generateMethodTree()
@@ -80,7 +83,7 @@ object Injectors {
   private fun saveMethod(method: Method) {
     methodToClassMap[method] = method.returnType
     classToMethodMap[method.returnType] = method
-    methodDependencies[method] = method.parameterTypes.toList()
+    classDependencies[method] = method.parameterTypes.toList()
   }
 
   private fun <T> constructDependenciesByDFS(
@@ -90,21 +93,14 @@ object Injectors {
   ) {
     val methodDependencies = methodTree[method].orEmpty()
 
-    if (methodDependencies.isEmpty()) {
-      methodToClassMap[method]?.let { safeClass ->
-        dependencies[safeClass] = method.invoke(moduleInstance)
-      }
-      return
-    }
-
     methodDependencies.forEach { methodDependency ->
       constructDependenciesByDFS(methodDependency, moduleInstance, dependencies)
     }
 
-    val parameters = methodDependencies
-      .map { methodDependency -> methodToClassMap[methodDependency] }
-      .map { clazz -> dependencies[clazz] }
-      .toTypedArray()
+    val parameters = classDependencies[method]
+      ?.map { clazz -> dependencies[clazz] }
+      ?.toTypedArray()
+      .orEmpty()
 
     methodToClassMap[method]?.let { safeClass ->
       dependencies[safeClass] = method.invoke(moduleInstance, *parameters)
@@ -117,7 +113,7 @@ object Injectors {
         methodTree[it.key] = mutableSetOf()
       }
       val safeMethods: MutableList<Method> = mutableListOf()
-      methodDependencies[it.key]?.forEach { clazz ->
+      classDependencies[it.key]?.forEach { clazz ->
         classToMethodMap[clazz]?.let { safeMethod ->
           safeMethods.add(safeMethod)
         }
@@ -129,7 +125,7 @@ object Injectors {
   private fun cleanUp() {
     methodToClassMap.clear()
     classToMethodMap.clear()
-    methodDependencies.clear()
+    classDependencies.clear()
     methodTree.clear()
   }
 }
