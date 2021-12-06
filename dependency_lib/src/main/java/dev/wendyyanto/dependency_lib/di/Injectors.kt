@@ -23,13 +23,9 @@ object Injectors {
   fun <T : InjectorModule, R : Any> inject(kClass: KClass<T>, entryPointClass: R) {
     val dependencies: MutableMap<Class<*>, Any> = mutableMapOf()
 
-    kClass.java.declaredMethods.filter { method ->
-      method.isAnnotationPresent(Provides::class.java)
-    }.forEach {
-      methodToClassMap[it] = it.returnType
-      classToMethodMap[it.returnType] = it
-      methodDependencies[it] = it.parameterTypes.toList()
-    }
+    kClass.java.declaredMethods
+      .filter { method -> method.isAnnotationPresent(Provides::class.java) }
+      .forEach(::saveMethod)
 
     generateMethodTree()
 
@@ -49,6 +45,12 @@ object Injectors {
     }
 
     cleanUp()
+  }
+
+  private fun saveMethod(method: Method) {
+    methodToClassMap[method] = method.returnType
+    classToMethodMap[method.returnType] = method
+    methodDependencies[method] = method.parameterTypes.toList()
   }
 
   private fun <T> constructDependenciesByDFS(
