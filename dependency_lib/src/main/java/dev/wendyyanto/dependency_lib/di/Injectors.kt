@@ -26,7 +26,7 @@ object Injectors {
 
   fun <T : InjectorModule> injectApp(kClass: KClass<T>) {
     saveMethods(kClass)
-    generateMethodTree()
+    generateMethodDependencyTree()
 
     methodTree.keys.forEach { methodKey ->
       constructDependenciesByDFS(methodKey, kClass.java.newInstance(), appDependencies)
@@ -39,7 +39,7 @@ object Injectors {
     val dependencies = appDependencies.toMutableMap()
 
     saveMethods(kClass)
-    generateMethodTree()
+    generateMethodDependencyTree()
 
     val moduleInstance = kClass.java.newInstance()
 
@@ -102,18 +102,18 @@ object Injectors {
     }
   }
 
-  private fun generateMethodTree() {
-    methodToClassMap.forEach {
-      if (methodTree[it.key] == null) {
-        methodTree[it.key] = mutableSetOf()
+  private fun generateMethodDependencyTree() {
+    methodToClassMap.keys.forEach { method ->
+      if (methodTree[method] == null) {
+        methodTree[method] = mutableSetOf()
       }
       val safeMethods: MutableList<Method> = mutableListOf()
-      classDependencies[it.key]?.forEach { clazz ->
+      classDependencies[method]?.forEach { clazz ->
         classToMethodMap[clazz]?.let { safeMethod ->
           safeMethods.add(safeMethod)
         }
       }
-      methodTree[it.key]?.addAll(safeMethods)
+      methodTree[method]?.addAll(safeMethods)
     }
   }
 
