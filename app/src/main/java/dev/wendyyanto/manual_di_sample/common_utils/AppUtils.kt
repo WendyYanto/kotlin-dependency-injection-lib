@@ -1,4 +1,4 @@
-package dev.wendyyanto.manual_di_sample.utils
+package dev.wendyyanto.manual_di_sample.common_utils
 
 class AppUtils {
 

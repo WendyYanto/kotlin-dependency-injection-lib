@@ -1,4 +1,4 @@
-package dev.wendyyanto.manual_di_sample.utils
+package dev.wendyyanto.manual_di_sample.main.utils
 
 class Signature {
 
