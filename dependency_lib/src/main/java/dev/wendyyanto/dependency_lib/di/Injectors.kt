@@ -20,7 +20,7 @@ object Injectors {
     mutableMapOf()
   }
 
-  fun <T : InjectorModule, R : Any> inject(kClass: KClass<T>, entryPointClazz: R) {
+  fun <T : InjectorModule, R : Any> inject(kClass: KClass<T>, entryPointClass: R) {
     val dependencies: MutableMap<Class<*>, Any> = mutableMapOf()
 
     kClass.java.declaredMethods.filter { method ->
@@ -36,22 +36,22 @@ object Injectors {
     val moduleInstance = kClass.java.newInstance()
 
     // Injecting Dependencies
-    entryPointClazz.javaClass.fields.filter { field ->
+    entryPointClass.javaClass.fields.filter { field ->
       field.isAnnotationPresent(Inject::class.java)
     }.forEach {
       if (dependencies.containsKey(it.type).not()) {
         val rootMethod = classToMethodMap[it.type]
         val safeRootMethod =
           rootMethod ?: throw IllegalArgumentException("Should have root entry point")
-        injectByDFS(safeRootMethod, moduleInstance, dependencies)
+        constructDependenciesByDFS(safeRootMethod, moduleInstance, dependencies)
       }
-      it.set(entryPointClazz, dependencies[it.type])
+      it.set(entryPointClass, dependencies[it.type])
     }
 
     cleanUp()
   }
 
-  private fun <T> injectByDFS(
+  private fun <T> constructDependenciesByDFS(
     method: Method,
     moduleInstance: T,
     dependencies: MutableMap<Class<*>, Any>
@@ -66,14 +66,13 @@ object Injectors {
     }
 
     methodDependencies.forEach { methodDependency ->
-      injectByDFS(methodDependency, moduleInstance, dependencies)
+      constructDependenciesByDFS(methodDependency, moduleInstance, dependencies)
     }
 
-    val parameters = methodDependencies.map { method ->
-      methodToClassMap[method]
-    }.map { clazz ->
-      dependencies[clazz]
-    }.toTypedArray()
+    val parameters = methodDependencies
+      .map { methodDependency -> methodToClassMap[methodDependency] }
+      .map { clazz -> dependencies[clazz] }
+      .toTypedArray()
 
     methodToClassMap[method]?.let { safeClass ->
       dependencies[safeClass] = method.invoke(moduleInstance, *parameters)
