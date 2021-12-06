@@ -35,7 +35,6 @@ object Injectors {
     }
 
     cleanUp()
-    println(appDependencies.toString())
   }
 
   fun <T : InjectorModule, R : Any> inject(kClass: KClass<T>, entryPointClass: R) {
