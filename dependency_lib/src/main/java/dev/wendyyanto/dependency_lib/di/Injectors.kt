@@ -36,9 +36,7 @@ object Injectors {
   }
 
   fun <T : InjectorModule, R : Any> inject(kClass: KClass<T>, entryPointClass: R) {
-    val dependencies: MutableMap<Class<*>, Any> = appDependencies.toMutableMap()
-
-    println(dependencies)
+    val dependencies = appDependencies.toMutableMap()
 
     saveMethods(kClass)
     generateMethodTree()
