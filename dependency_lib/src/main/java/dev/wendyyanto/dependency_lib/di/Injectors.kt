@@ -28,10 +28,8 @@ object Injectors {
     saveMethods(kClass)
     generateMethodTree()
 
-    val appModuleInstance = kClass.java.newInstance()
-
     methodTree.keys.forEach { methodKey ->
-      constructDependenciesByDFS(methodKey, appModuleInstance, appDependencies)
+      constructDependenciesByDFS(methodKey, kClass.java.newInstance(), appDependencies)
     }
 
     cleanUp()
@@ -59,7 +57,7 @@ object Injectors {
     cleanUp()
   }
 
-  private fun <T: InjectorModule> saveMethods(kClass: KClass<T>) {
+  private fun <T : InjectorModule> saveMethods(kClass: KClass<T>) {
     kClass.java.declaredMethods
       .filter { method -> method.isAnnotationPresent(Provides::class.java) }
       .forEach(::saveMethod)
