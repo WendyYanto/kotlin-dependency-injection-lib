@@ -28,16 +28,10 @@ object Injectors {
     saveMethods(kClass)
     generateMethodTree()
 
-    val appModuleInstance = kClass.objectInstance
+    val appModuleInstance = kClass.java.newInstance()
 
-    appModuleInstance?.let { safeAppModuleInstance ->
-      methodTree.forEach { (methodKey, _) ->
-        constructDependenciesByDFS(methodKey, safeAppModuleInstance, appDependencies)
-      }
-
-      methodTree.keys.forEach {
-
-      }
+    methodTree.keys.forEach { methodKey ->
+      constructDependenciesByDFS(methodKey, appModuleInstance, appDependencies)
     }
 
     cleanUp()

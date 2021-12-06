@@ -2,7 +2,7 @@ package dev.wendyyanto.manual_di_sample.utils
 
 class StringUtils {
 
-  fun test(): String  {
+  fun test(): String {
     return "StringUtils"
   }
 }
