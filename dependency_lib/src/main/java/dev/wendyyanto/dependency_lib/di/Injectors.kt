@@ -2,6 +2,7 @@ package dev.wendyyanto.dependency_lib.di
 
 import dev.wendyyanto.dependency_lib.annotation.Inject
 import dev.wendyyanto.dependency_lib.annotation.Provides
+import java.lang.reflect.Field
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
@@ -19,32 +20,67 @@ object Injectors {
   private val methodTree: MutableMap<Method, MutableSet<Method>> by lazy {
     mutableMapOf()
   }
+  private val appDependencies: MutableMap<Class<*>, Any> by lazy {
+    mutableMapOf()
+  }
+
+  fun <T : InjectorModule> injectApp(kClass: KClass<T>) {
+    saveMethods(kClass)
+    generateMethodTree()
+
+    val appModuleInstance = kClass.objectInstance
+
+    appModuleInstance?.let { safeAppModuleInstance ->
+      methodTree.forEach { (methodKey, _) ->
+        constructDependenciesByDFS(methodKey, safeAppModuleInstance, appDependencies)
+      }
+
+      methodTree.keys.forEach {
+
+      }
+    }
+
+    cleanUp()
+  }
 
   fun <T : InjectorModule, R : Any> inject(kClass: KClass<T>, entryPointClass: R) {
-    val dependencies: MutableMap<Class<*>, Any> = mutableMapOf()
+    val dependencies: MutableMap<Class<*>, Any> = appDependencies.toMutableMap()
 
-    kClass.java.declaredMethods
-      .filter { method -> method.isAnnotationPresent(Provides::class.java) }
-      .forEach(::saveMethod)
-
+    saveMethods(kClass)
     generateMethodTree()
 
     val moduleInstance = kClass.java.newInstance()
 
-    // Injecting Dependencies
+    // Construct and inject dependencies
     entryPointClass.javaClass.fields.filter { field ->
       field.isAnnotationPresent(Inject::class.java)
-    }.forEach {
-      if (dependencies.containsKey(it.type).not()) {
-        val rootMethod = classToMethodMap[it.type]
-        val safeRootMethod =
-          rootMethod ?: throw IllegalArgumentException("Should have root entry point")
-        constructDependenciesByDFS(safeRootMethod, moduleInstance, dependencies)
-      }
-      it.set(entryPointClass, dependencies[it.type])
+    }.onEach { field ->
+      constructAndCacheDependencies(field, dependencies, moduleInstance)
+    }.forEach { field ->
+      field.set(entryPointClass, dependencies[field.type])
     }
 
     cleanUp()
+  }
+
+  private fun <T: InjectorModule> saveMethods(kClass: KClass<T>) {
+    kClass.java.declaredMethods
+      .filter { method -> method.isAnnotationPresent(Provides::class.java) }
+      .forEach(::saveMethod)
+  }
+
+  private fun <T : InjectorModule> constructAndCacheDependencies(
+    field: Field,
+    dependencies: MutableMap<Class<*>, Any>,
+    moduleInstance: T
+  ) {
+    if (dependencies.containsKey(field.type)) {
+      return
+    }
+    val rootMethod = classToMethodMap[field.type]
+    val safeRootMethod =
+      rootMethod ?: throw IllegalArgumentException("Should have root entry point")
+    constructDependenciesByDFS(safeRootMethod, moduleInstance, dependencies)
   }
 
   private fun saveMethod(method: Method) {
